@@ -1,21 +1,22 @@
-from aiohttp import web, RequestInfo, ClientSession
+from aiohttp import web, RequestInfo
 import aiohttp
 import json
 import random
 import re
-import requests
 import aiohttp_jinja2
 import jinja2
 from pathlib import Path
 
 DOMAIN = "https://foxgirls.club/"
 
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
 here = Path(__file__).resolve().parent
 db = []
 with open('db.json', 'r') as file:
     db = json.load(file)
 
-async def get_image (type, hide_loli, only_loli):
+async def get_image(type, hide_loli, only_loli):
     if type == "nsfw":
         choice = random.choice(list(db["nsfw"].items()))
     elif type == "sfw":
@@ -32,7 +33,7 @@ async def get_image (type, hide_loli, only_loli):
         return choice
 
 
-def handle_image(request):
+async def handle_image(request):
     hash_match = re.match(r'^/images/(.*)$', request.path)
     if not hash_match:
         return web.Response(
@@ -42,7 +43,6 @@ def handle_image(request):
         )
 
     image_hash = hash_match.group(1)
-
     if image_hash in db['nsfw']:
         image_url = db['nsfw'][image_hash]["link"]
     elif image_hash in db['sfw']:
@@ -55,25 +55,37 @@ def handle_image(request):
         )
 
     try:
-        response = requests.get(image_url)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Referer': 'https://gelbooru.com/',
+            }) as resp:
+                if resp.status != 200:
+                    return web.Response(
+                        text=f"Failed to fetch image (status {resp.status})",
+                        status=resp.status,
+                        headers={'Access-Control-Allow-Origin': '*'}
+                    )
 
-        if response.status_code != 200:
-            return web.Response(
-                text=f"Failed to fetch image (status {response.status_code})",
-                status=response.status_code,
-                headers={'Access-Control-Allow-Origin': '*'}
-            )
+                content_type = resp.headers.get('Content-Type', '')
+                content_type = content_type.split(';')[0].strip()
 
-        return web.Response(
-            body=response.content,
-            status=200,
-            content_type=response.headers.get('Content-Type', 'application/octet-stream'),
-            headers={
-                'Access-Control-Allow-Origin': '*'
-            }
-        )
+                if content_type not in ALLOWED_CONTENT_TYPES:
+                    return web.Response(
+                        text="Invalid content type",
+                        status=502,
+                        headers={'Access-Control-Allow-Origin': '*'}
+                    )
 
-    except requests.RequestException as e:
+                body = await resp.read()
+                return web.Response(
+                    body=body,
+                    status=200,
+                    content_type=content_type,
+                    headers={'Access-Control-Allow-Origin': '*'}
+                )
+
+    except aiohttp.ClientError as e:
         return web.json_response({'error': f"Error {e}"}, status=500)
 
 
@@ -86,9 +98,9 @@ async def handle_api_get(request: RequestInfo):
     if type == "endpoints":
         resp = {}
         resp['endpoints'] = {
-            'sfw imagess': DOMAIN+"api/sfw",
-            'nsfw images': DOMAIN+"api/nsfw",
-            "sfw+nsfw images": DOMAIN+"api/"
+            'sfw images': DOMAIN + "api/sfw",
+            'nsfw images': DOMAIN + "api/nsfw",
+            "sfw+nsfw images": DOMAIN + "api/"
         }
         resp["query parameters"] = {
             'Do not include loli images': "hide_loli=true"
@@ -98,7 +110,8 @@ async def handle_api_get(request: RequestInfo):
     if danb:
         return web.json_response(img[1], status=200, headers={'Access-Control-Allow-Origin': '*'})
     else:
-        return web.json_response({'url':DOMAIN+"images/"+img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
+        return web.json_response({'url': DOMAIN + "images/" + img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
+
 
 @aiohttp_jinja2.template('/templates/index.html')
 async def handle_index(request: RequestInfo):
@@ -108,16 +121,12 @@ async def handle_index(request: RequestInfo):
     if type != "nsfw": type = "sfw"
     img = await get_image(type, hide_loli, False)
     vars = {
-    'img_url': "/images/"+img[0],
-    'rating': "NSFW" if type == "sfw" else "SFW",
-    'r_link': "nsfw" if type == "sfw" else "sfw",
-    'domain': DOMAIN
+        'img_url': "/images/" + img[0],
+        'rating': "NSFW" if type == "sfw" else "SFW",
+        'r_link': "nsfw" if type == "sfw" else "sfw",
+        'domain': DOMAIN
     }
     return vars
-
-
-
-
 
 
 app = web.Application()
