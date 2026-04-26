@@ -90,8 +90,14 @@ async def handle_image(request):
 
 
 async def handle_api_get(request: RequestInfo):
-    hide_loli = request.url.query.get("hide_loli")
-    only_loli = request.url.query.get("only_loli")
+    def parse_bool_query(name, default=False):
+        value = request.url.query.get(name)
+        if value is None:
+            return default
+        return value.lower() in {"1", "true"}
+
+    hide_loli = parse_bool_query("hide_loli", default=True)
+    only_loli = parse_bool_query("only_loli", default=False)
     danb = request.url.query.get("original_booru_data")
     type = re.match(r'^/api/(.*)$', request.path)
     type = type.group(1)
