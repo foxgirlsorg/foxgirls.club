@@ -89,7 +89,7 @@
     </footer>
     <script>
         async function updateImage() {
-            var link = ("{{r_link}}" == "nsfw") ? "{{domain}}api/sfw" : "{{domain}}api/nsfw";
+            var link = ("{{r_link}}" == "nsfw") ? "/api/sfw" : "/api/nsfw";
             var loader = document.getElementById("loader");
             const response = await fetch(link);
             if (response.ok) {

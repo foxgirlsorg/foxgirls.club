@@ -32,7 +32,9 @@ async def get_image(type, hide_loli, only_loli):
 
 
 def get_request_domain(request: RequestInfo):
-    return f"{request.scheme}://{request.host}/"
+    forwarded_proto = request.headers.get("X-Forwarded-Proto")
+    scheme = forwarded_proto.split(",")[0].strip() if forwarded_proto else request.scheme
+    return f"{scheme}://{request.host}/"
 
 
 async def handle_image(request):
@@ -119,7 +121,7 @@ async def handle_api_get(request: RequestInfo):
     if danb:
         return web.json_response(img[1], status=200, headers={'Access-Control-Allow-Origin': '*'})
     else:
-        return web.json_response({'url': domain + "images/" + img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
+        return web.json_response({'url': "/images/" + img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
 
 
 @aiohttp_jinja2.template('/templates/index.html')
