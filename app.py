@@ -7,8 +7,6 @@ import aiohttp_jinja2
 import jinja2
 from pathlib import Path
 
-DOMAIN = "https://foxgirls.club/"
-
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 
 here = Path(__file__).resolve().parent
@@ -31,6 +29,10 @@ async def get_image(type, hide_loli, only_loli):
         return await get_image(type, hide_loli, only_loli)
     else:
         return choice
+
+
+def get_request_domain(request: RequestInfo):
+    return f"{request.scheme}://{request.host}/"
 
 
 async def handle_image(request):
@@ -99,14 +101,15 @@ async def handle_api_get(request: RequestInfo):
     hide_loli = parse_bool_query("hide_loli", default=True)
     only_loli = parse_bool_query("only_loli", default=False)
     danb = request.url.query.get("original_booru_data")
+    domain = get_request_domain(request)
     type = re.match(r'^/api/(.*)$', request.path)
     type = type.group(1)
     if type == "endpoints":
         resp = {}
         resp['endpoints'] = {
-            'sfw images': DOMAIN + "api/sfw",
-            'nsfw images': DOMAIN + "api/nsfw",
-            "sfw+nsfw images": DOMAIN + "api/"
+            'sfw images': domain + "api/sfw",
+            'nsfw images': domain + "api/nsfw",
+            "sfw+nsfw images": domain + "api/"
         }
         resp["query parameters"] = {
             'Do not include loli images': "hide_loli=true"
@@ -116,7 +119,7 @@ async def handle_api_get(request: RequestInfo):
     if danb:
         return web.json_response(img[1], status=200, headers={'Access-Control-Allow-Origin': '*'})
     else:
-        return web.json_response({'url': DOMAIN + "images/" + img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
+        return web.json_response({'url': domain + "images/" + img[0]}, status=200, headers={'Access-Control-Allow-Origin': '*'})
 
 
 @aiohttp_jinja2.template('/templates/index.html')
@@ -124,13 +127,15 @@ async def handle_index(request: RequestInfo):
     type = re.match(r'^/(.*)$', request.path)
     type = type.group(1)
     hide_loli = True if type == "nsfw" else False
-    if type != "nsfw": type = "sfw"
+    if type != "nsfw":
+        type = "sfw"
     img = await get_image(type, hide_loli, False)
+    domain = get_request_domain(request)
     vars = {
         'img_url': "/images/" + img[0],
         'rating': "NSFW" if type == "sfw" else "SFW",
         'r_link': "nsfw" if type == "sfw" else "sfw",
-        'domain': DOMAIN
+        'domain': domain
     }
     return vars
 
