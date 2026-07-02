@@ -115,14 +115,17 @@ foxgirls_club/
 ├── docker-compose.yml
 ├── static/
 │   ├── css/
+│   │   ├── error.css
 │   │   ├── index.css
 │   │   └── menu.css
 │   └── images/
 │       ├── banner.jpg
+│       ├── error.jpg
+│       ├── favicon.ico
 │       ├── noise.svg
-│       ├── placeholder.svg
-│       └── favicon.ico
+│       └── placeholder.svg
 └── templates/
+    ├── error.html
     └── index.html
 ```
 
