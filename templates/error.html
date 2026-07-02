@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ code }} - Fox Girls Club</title>
+    <link rel="stylesheet" href="/static/css/error.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <meta property="og:title" content="{{ code }} - Fox Girls Club" />
+    <meta name="twitter:description" content="Fox girls are just better :3">
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Fox girls are just better :3">
+    <meta property="og:url" content="https://foxgirls.club/" />
+    <meta property="og:image" content="https://foxgirls.club/static/images/banner.jpg" />
+    <meta name="twitter:image" content="https://foxgirls.club/static/images/banner.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ code }} - Fox Girls Club">
+</head>
+
+<body>
+
+    <div class="backdrop" aria-hidden="true">
+        <img src="/static/images/error.jpg" alt="">
+        <div class="noise"></div>
+    </div>
+
+    <div class="navbar">
+        <div class="left">
+            <img src="/favicon.ico" alt="">
+            <a href="/">
+                <h1>FOXGIRLS.<span class="accent">CLUB</span></h1>
+            </a>
+        </div>
+    </div>
+
+    <div class="error-container">
+        <span class="error-badge">{{ label }}</span>
+        <div class="error-code">{{ code }}</div>
+        <div class="error-divider"></div>
+        {% if description %}
+        <p class="error-description">{{ description }}</p>
+        {% endif %}
+        <a href="/" class="pill-btn"><i class="fas fa-arrow-left"></i> GO HOME</a>
+    </div>
+
+    <footer>
+        <span>&copy; <span id="current-year"></span> Made by <a href="https://foxgirls.org" target="_blank">foxgirls.org</a></span>
+    </footer>
+
+    <script>
+        document.getElementById("current-year").textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>
