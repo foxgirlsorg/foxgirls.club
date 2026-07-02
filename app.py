@@ -117,6 +117,12 @@ async def handle_api_get(request: RequestInfo):
             'Do not include loli images': "hide_loli=true"
         }
         return web.json_response(resp, status=200, headers={'Access-Control-Allow-Origin': '*'})
+    if type not in ("sfw", "nsfw", ""):
+        return web.json_response(
+            {'error': 'UNKNOWN_ENDPOINT', 'description': 'The requested API endpoint does not exist.'},
+            status=404,
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
     img = await get_image(type, hide_loli, only_loli)
     if danb:
         return web.json_response(img[1], status=200, headers={'Access-Control-Allow-Origin': '*'})
@@ -142,6 +148,40 @@ async def handle_index(request: RequestInfo):
     return vars
 
 
+ERROR_PAGES = {
+    '400': {'label': 'BAD_REQUEST', 'description': 'The request could not be understood.'},
+    '403': {'label': 'FORBIDDEN', 'description': 'You do not have permission to access this resource.'},
+    '404': {'label': 'NOT_FOUND', 'description': 'The page you are looking for does not exist.'},
+    '429': {'label': 'TOO_MANY_REQUESTS', 'description': 'You have made too many requests. Please slow down.'},
+    '500': {'label': 'SERVER_ERROR', 'description': 'Something went wrong on our end. Please try again.'},
+    '418': {'label': "I'M_A_TEAPOT", 'description': 'The server refuses to brew coffee because it is, permanently, a teapot.'},
+}
+
+
+async def handle_error_page(request):
+    status = request.match_info.get('code', '500')
+    info = ERROR_PAGES.get(status, ERROR_PAGES['500'])
+    if request.path.startswith('/api/'):
+        return web.json_response(
+            {'error': info['label'], 'description': info['description']},
+            status=int(status),
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
+    context = {'code': status, 'label': info['label'], 'description': info['description']}
+    return aiohttp_jinja2.render_template('templates/error.html', request, context, status=int(status))
+
+
+async def handle_404(request):
+    if request.path.startswith('/api/'):
+        return web.json_response(
+            {'error': 'NOT_FOUND', 'description': 'The requested API endpoint does not exist.'},
+            status=404,
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
+    context = {'code': '404', 'label': 'NOT_FOUND', 'description': 'The page you are looking for does not exist.'}
+    return aiohttp_jinja2.render_template('templates/error.html', request, context, status=404)
+
+
 app = web.Application()
 app.add_routes([web.get("/images/{tail:.*}", handle_image)])
 app.add_routes([web.get("/api/{tail:.*}", handle_api_get)])
@@ -150,6 +190,8 @@ app.add_routes([web.get("/{tail:(sfw|nsfw)?(?:/.*)?}", handle_index)])
 app.router.add_static('/static/', path='static', name='static')
 favicon_path = Path('static/images/favicon.ico')
 app.router.add_get('/favicon.ico', lambda _: web.FileResponse(favicon_path))
+app.router.add_get('/error/{code:\\d+}', handle_error_page)
+app.router.add_get('/{tail:.*}', handle_404)
 
 if __name__ == "__main__":
     web.run_app(app, port=3010)
