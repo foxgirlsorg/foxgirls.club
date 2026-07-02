@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1c1e"/>
+      <stop offset="100%" stop-color="#141414"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1920" rx="38" fill="url(#g)"/>
+  <rect x="1.5" y="1.5" width="1077" height="1917" rx="36.5"
+        fill="none" stroke="rgba(255,255,255,0.07)"/>
+
+  <g transform="translate(0,370)">
+    <g opacity="0.7">
+      <rect x="405" y="430" width="270" height="203" rx="18"
+            fill="none" stroke="#de6161" stroke-width="7"/>
+
+      <circle cx="457" cy="484" r="16"
+              fill="#de6161" opacity="0.6"/>
+
+      <path d="M405 606
+               L479 534
+               L522 577
+               L581 511
+               L675 606 Z"
+            fill="#de6161" opacity="0.3"/>
+
+      <line x1="378" y1="403"
+            x2="702" y2="660"
+            stroke="#de6161"
+            stroke-width="9"
+            stroke-linecap="round"
+            opacity="0.85"/>
+    </g>
+
+    <text x="540"
+          y="830"
+          text-anchor="middle"
+          font-family="Inter, system-ui, sans-serif"
+          font-size="56"
+          font-weight="700"
+          letter-spacing="8"
+          fill="#babfba">
+      IMAGE UNAVAILABLE
+    </text>
+
+    <text x="540"
+          y="905"
+          text-anchor="middle"
+          font-family="Inter, system-ui, sans-serif"
+          font-size="38"
+          fill="#6b7280">
+      try reloading in a moment
+    </text>
+  </g>
+</svg>

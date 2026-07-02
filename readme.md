@@ -118,7 +118,9 @@ foxgirls_club/
 │   │   ├── index.css
 │   │   └── menu.css
 │   └── images/
-│       ├── baner.jpg
+│       ├── banner.jpg
+│       ├── noise.svg
+│       ├── placeholder.svg
 │       └── favicon.ico
 └── templates/
     └── index.html

@@ -135,7 +135,7 @@ async def handle_index(request: RequestInfo):
     domain = get_request_domain(request)
     vars = {
         'img_url': "/images/" + img[0],
-        'rating': "NSFW" if type == "sfw" else "SFW",
+        'rating': type.upper(),
         'r_link': "nsfw" if type == "sfw" else "sfw",
         'domain': domain
     }

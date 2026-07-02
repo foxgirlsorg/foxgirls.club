@@ -1,114 +1,133 @@
 .menu {
-  display: flex;
-  flex-direction: row;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
 .menu>li {
-  overflow: hidden;
+    overflow: hidden;
 }
 
 .menu-button-container {
-  display: none;
-  height: 100%;
-  width: 30px;
-  cursor: pointer;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    display: none;
+    height: 100%;
+    width: 26px;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 201;
 }
 
 #menu-toggle {
-  display: none;
-  width: 20px;
-  height: 20px;
+    display: none;
 }
 
 .menu-button,
 .menu-button::before,
 .menu-button::after {
-  display: block;
-  background-color: #cccccc;
-  position: absolute;
-  height: 3px;
-  width: 30px;
-  transition: .2s;
-  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
-  border-radius: 2px;
+    display: block;
+    background-color: var(--text-secondary, #cccccc);
+    position: absolute;
+    height: 2px;
+    width: 24px;
+    border-radius: 2px;
+    transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1), background-color .2s ease;
 }
 
 .menu-button::before {
-  content: '';
-  margin-top: -8px;
-}
-
-
-#menu-toggle:checked+.menu-button-container .menu-button::before,
-#menu-toggle:checked+.menu-button-container .menu-button::after {
-  background-color: #de6161;
+    content: '';
+    margin-top: -7px;
 }
 
 .menu-button::after {
-  content: '';
-  margin-top: 8px;
+    content: '';
+    margin-top: 7px;
 }
 
-#menu-toggle:checked+.menu-button-container .menu-button::before {
-  margin-top: 0px;
-  transform: rotate(45deg);
+#menu-toggle:checked+.menu-button-container .menu-button::before,
+#menu-toggle:checked+.menu-button-container .menu-button::after {
+    background-color: var(--accent, #de6161);
 }
 
 #menu-toggle:checked+.menu-button-container .menu-button {
-  background: rgba(255, 255, 255, 0);
+    background: rgba(255, 255, 255, 0);
+}
+
+#menu-toggle:checked+.menu-button-container .menu-button::before {
+    margin-top: 0px;
+    transform: rotate(45deg);
 }
 
 #menu-toggle:checked+.menu-button-container .menu-button::after {
-  margin-top: 0px;
-  transform: rotate(-45deg);
+    margin-top: 0px;
+    transform: rotate(-45deg);
 }
 
 @media (max-width: 700px) {
-  .menu-button-container {
-    display: flex;
-  }
+    .menu-button-container {
+        display: flex;
+    }
 
-  .menu {
-    position: absolute;
-    top: 0;
-    margin-top: 50px;
-    left: 0;
-    flex-direction: column;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-  }
+    .menu {
+        position: fixed;
+        inset: 0;
+        margin-top: 0;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        background: rgba(12, 12, 12, 0.75);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 300ms ease, visibility 300ms ease;
+        z-index: 200;
+    }
 
-  #menu-toggle~.menu li {
-    height: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
+    #menu-toggle:checked~.menu {
+        opacity: 1;
+        visibility: visible;
+    }
 
-  #menu-toggle:checked~.menu li {
-    height: 50px;
-    transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
+    #menu-toggle~.menu li {
+        height: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 300ms ease 100ms,
+            transform 300ms ease 100ms;
+    }
 
-  .menu>li {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    width: 100%;
-    color: white;
-    background-color: #222;
-  }
+    #menu-toggle:checked~.menu li {
+        height: 64px;
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-  #menu-toggle:checked~.menu>li:not(:last-child) {
-    border-bottom: 1px solid #444;
-  }
-}
+    .menu>li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        width: 100%;
+        background: transparent;
+    }
+
+    .menu a.navmenuitem {
+        font-size: 22px;
+        font-weight: 300;
+        letter-spacing: 0.12em;
+        margin-left: 0;
+    }
+}A
